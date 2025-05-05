@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Progress Tracker - May 2025</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Daily Progress Tracker - May 2025</h1>
+            <p>Track your job search and tech learning progress</p>
+            <div class="date-display" id="currentDate">Loading date...</div>
+            <div class="theme-switch">
+                <span class="theme-label">Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard">
+            <div class="left-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">May 2025 Calendar</h2>
+                        <div>
+                            <span class="badge badge-primary" id="currentMonth">May</span>
+                        </div>
+                    </div>
+                    <div class="calendar-header">
+                        <div class="calendar-day">Sun</div>
+                        <div class="calendar-day">Mon</div>
+                        <div class="calendar-day">Tue</div>
+                        <div class="calendar-day">Wed</div>
+                        <div class="calendar-day">Thu</div>
+                        <div class="calendar-day">Fri</div>
+                        <div class="calendar-day">Sat</div>
+                    </div>
+                    <div class="calendar" id="calendar">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Daily Tasks</h2>
+                        <div id="dailyTasksDate">For Today</div>
+                    </div>
+                    <ul class="task-list" id="taskList">
+                        <!-- Tasks will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Stats & Progress</h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="completionRate">0%</div>
+                            <div class="stat-label">Task Completion Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="dayStreak">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="hoursInvested">0</div>
+                            <div class="stat-label">Hours Invested</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="portfolioUpdates">0</div>
+                            <div class="stat-label">Portfolio Updates</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <h3>Monthly Progress</h3>
+                        <div>
+                            <div>Python/Bash/PowerShell</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="pythonProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>AWS Certification</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="awsProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Interview Prep</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="interviewProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Project Work</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="projectProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Additional Tech (Terraform/Jenkins)</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="techProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-distribution">
+                        <h3>Time Distribution</h3>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #3498db;"></div>
+                            <div class="time-block-label">Python/Bash/PowerShell: <span id="pythonHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #e74c3c;"></div>
+                            <div class="time-block-label">AWS Certification: <span id="awsHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #f39c12;"></div>
+                            <div class="time-block-label">Interview Prep: <span id="interviewHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #2ecc71;"></div>
+                            <div class="time-block-label">Project Work: <span id="projectHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #9b59b6;"></div>
+                            <div class="time-block-label">Additional Tech: <span id="techHours">0</span> hrs</div>
+                        </div>
+                    </div>
+                    
+                    <div class="streak-info">
+                        You're on a <span class="streak-value" id="currentStreak">0</span> day streak! Keep it up!
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Focus Timer</h2>
+                    </div>
+                    <div class="timer-section">
+                        <select class="task-selector" id="taskSelector">
+                            <option value="">-- Select a task --</option>
+                            <option value="python">Python/Bash/PowerShell</option>
+                            <option value="aws">AWS Certification</option>
+                            <option value="interview">Interview Prep</option>
+                            <option value="project">Project Work</option>
+                            <option value="tech">Additional Tech</option>
+                            <option value="portfolio">Portfolio Update</option>
+                        </select>
+                        <div class="timer-display" id="timerDisplay">00:00:00</div>
+                        <div class="timer-controls">
+                            <button class="timer-btn start" id="startTimer">Start</button>
+                            <button class="timer-btn pause" id="pauseTimer" disabled>Pause</button>
+                            <button class="timer-btn reset" id="resetTimer">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Notes</h2>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" id="quickNotes" rows="4" placeholder="Add your quick notes or reminders here..."></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="saveNotes">Save Notes</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reminder-section">
+            <span class="reminder-icon">⏰</span>
+            <span>Remember: Tasks reset at 3:00 AM. Your active hours are 1:00 PM to 2:30 AM.</span>
+        </div>
+    </div>
+    
+    <!-- Daily Task Details Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeTaskModal">&times;</span>
+            <h2 id="modalTaskTitle">Task Details</h2>
+            <div class="form-group">
+                <label class="form-label">Hours Spent</label>
+                <input type="number" class="form-control" id="taskHours" min="0" max="24" step="0.5" value="0">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" id="taskNotes" rows="4" placeholder="What did you work on?"></textarea>
+            </div>
+            <button class="btn btn-success btn-block" id="saveTaskDetails">Save</button>
+        </div>
+    </div>
+    
+    <!-- Day Details Modal -->
+    <div class="modal" id="dayModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeDayModal">&times;</span>
+            <h2 id="modalDayTitle">Day Details</h2>
+            <div id="dayTasksList">
+                <!-- Day's tasks will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize state
+            let state = loadState();
+            updateUI();
+            
+            // Set up calendar
+            setupCalendar();
+            
+            // Set up event listeners
+            document.getElementById('themeToggle').addEventListener('change', toggleTheme);
+            document.getElementById('saveNotes').addEventListener('click', saveNotes);
+            document.getElementById('startTimer').addEventListener('click', startTimer);
+            document.getElementById('pauseTimer').addEventListener('click', pauseTimer);
+            document.getElementById('resetTimer').addEventListener('click', resetTimer);
+            document.getElementById('closeTaskModal').addEventListener('click', () => {
+                document.getElementById('taskModal').style.display = 'none';
+            });
+            document.getElementById('closeDayModal').addEventListener('click', () => {
+                document.getElementById('dayModal').style.display = 'none';
+            });
+            document.getElementById('saveTaskDetails').addEventListener('click', saveTaskDetails);
+            
+            // Update date display
+            updateDateDisplay();
+            
+            // Auto-check for task reset
+            checkTaskReset();
+            
+            // Set interval to check for task reset
+            setInterval(checkTaskReset, 60000); // Check every minute
+            
+            // Load theme preference
+            loadThemePreference();
+            
+            // Generate tasks for today if not already present
+            if (!state.days[getCurrentDateString()]) {
+                generateTasksForToday();
+            }
+            
+            // Update UI
+            updateUI();
+        });
+        
+        // Load state from localStorage
+        function loadState() {
+            const defaultState = {
+                days: {},
+                notes: '',
+                currentTimer: {
+                    task: '',
+                    startTime: null,
+                    elapsedTime: 0,
+                    isRunning: false
+                },
+                stats: {
+                    dayStreak: 0,
+                    lastCompletedDay: null,
+                    pythonHours: 0,
+                    awsHours: 0,
+                    interviewHours: 0,
+                    projectHours: 0,
+                    techHours: 0,
+                    portfolioUpdates: 0
+                }
+            };
+            
+            const savedState = localStorage.getItem('progressTrackerState');
+            return savedState ? JSON.parse(savedState) : defaultState;
+        }
+        
+        // Save state to localStorage
+        function saveState(state) {
+            localStorage.setItem('progressTrackerState', JSON.stringify(state));
+        }
+        
+        // Update UI based on current state
+        function updateUI() {
+            const state = loadState();
+            
+            // Update notes
+            document.getElementById('quickNotes').value = state.notes || '';
+            
+            // Update timer display
+            updateTimerDisplay();
+            
+            // Update task list for today
+            updateTaskList();
+            
+            // Update stats
+            updateStats();
+            
+            // Update calendar highlights
+            updateCalendarHighlights();
+        }
+        
+        // Get current date as string (YYYY-MM-DD)
+        function getCurrentDateString() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+        
+        // Get yesterday's date as string (YYYY-MM-DD)
+        function getYesterdayDateString() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+        }
+        
+        // Update date display
+        function updateDateDisplay() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        // Check if tasks need to be reset (after 3:00 AM)
+        function checkTaskReset() {
+            const state = loadState();
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentDate = getCurrentDateString();
+            
+            // If it's past 3:00 AM and we haven't created today's tasks yet
+            if (currentHour >= 3 && !state.days[currentDate]) {
+                generateTasksForToday();
+                updateUI();
+            }
+        }
+        
+        // Generate tasks for today
+        function generateTasksForToday() {
+            const state = loadState();
+            const today = new Date();
+            const dayOfMonth = today.getDate();
+            const currentDate = getCurrentDateString();
+            
+            // Create tasks for today
+            state.days[currentDate] = {
+                tasks: [
+                    {
+                        id: 'python',
+                        name: 'Python/Bash/PowerShell',
+                        hours: 2,
+                        completed: false,
+                        hoursSpent: 0,
+                        notes: ''
+                    },
+                    {
+                        id: 'aws',
+                        name: 'AWS Certification Prep',
+                        hours: 2,
+                        completed: false,
+                        hoursSpent: 0,
+                        notes: ''
+                    },
+                    {
+                        id: 'interview',
+                        name: 'Interview Prep',
+                        hours: 1,
+                        completed: false,
+                        hoursSpent: 0,
+                        notes: ''
+                    },
+                    {
+                        id: 'project',
+                        name: 'Project Work',
+                        hours: 4.5,
+                        completed: false,
+                        hoursSpent: 0,
+                        notes: ''
+                    },
+                    {
+                        id: 'tech',
+                        name: 'Additional Tech (Terraform/Jenkins)',
+                        hours: 1,
+                        completed: false,
+                        hoursSpent: 0,
+                        notes: ''
+                    }
+                ]
+            };
+            
+            // Add portfolio task if day is divisible by 3
+            if (dayOfMonth % 3 === 0) {
+                state.days[currentDate].tasks.push({
+                    id: 'portfolio',
+                    name: 'Portfolio Website Update',
+                    hours: 1,
+                    completed: false,
+                    hoursSpent: 0,
+                    notes: ''
+                });
+            }
+            
+            saveState(state);
+        }
+        
+        // Update task list for today
+        function updateTaskList() {
+            const state = loadState();
+            const currentDate = getCurrentDateString();
+            const taskList = document.getElementById('taskList');
+            
+            // Clear existing list
+            taskList.innerHTML = '';
+            
+            // Check if we have tasks for today
+            if (!state.days[currentDate]) {
+                taskList.innerHTML = '<li class="task-item">No tasks for today yet.</li>';
+                return;
+            }
+            
+            // Update display date
+            document.getElementById('dailyTasksDate').textContent = `For Today (${new Date().toLocaleDateString()})`;
+            
+            // Populate task list
+            state.days[currentDate].tasks.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskItem.dataset.taskId = task.id;
+                
+                taskItem.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                    <div class="task-label">
+                        <div class="task-name">${task.name}</div>
+                        <div class="task-details">Target: ${task.hours} hours | Completed: ${task.hoursSpent} hours</div>
+                    </div>
+                    <div class="task-hours">${Math.round(task.hoursSpent / task.hours * 100)}%</div>
+                `;
+                
+                // Add event listeners for task interaction
+                taskItem.querySelector('.task-checkbox').addEventListener('change', (e) => {
+                    toggleTaskCompletion(task.id, e.target.checked);
+                });
+                
+                taskItem.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('task-checkbox')) {
+                        showTaskModal(task.id);
+                    }
+                });
+                
+                taskList.appendChild(taskItem);
+            });
+        }
+        
+        // Toggle task completion status
+        function toggleTaskCompletion(taskId, completed) {
+            const state = loadState();
+            const currentDate = getCurrentDateString();
+            
+            if (state.days[currentDate]) {
+                const task = state.days[currentDate].tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.completed = completed;
+                    
+                    // If marking as complete but hours not met, set hours spent to target
+                    if (completed && task.hoursSpent < task.hours) {
+                        task.hoursSpent = task.hours;
+                    }
+                    
+                    saveState(state);
+                    updateUI();
+                    updateStreak();
+                }
+            }
+        }
+        
+        // Show task modal for editing
+        function showTaskModal(taskId) {
+            const state = loadState();
+            const currentDate = getCurrentDateString();
+            
+            if (state.days[currentDate]) {
+                const task = state.days[currentDate].tasks.find(t => t.id === taskId);
+                if (task) {
+                    // Populate modal
+                    document.getElementById('modalTaskTitle').textContent = task.name;
+                    document.getElementById('taskHours').value = task.hoursSpent;
+                    document.getElementById('taskNotes').value = task.notes;
+                    
+                    // Store current task id for saving
+                    document.getElementById('taskModal').dataset.taskId = taskId;
+                    
+                    // Show modal
+                    document.getElementById('taskModal').style.display = 'block';
+                }
+            }
+        }
+        
+        // Save task details from modal
+        function saveTaskDetails() {
+            const taskId = document.getElementById('taskModal').dataset.taskId;
+            const hoursSpent = parseFloat(document.getElementById('taskHours').value) || 0;
+            const notes = document.getElementById('taskNotes').value;
+            
+            const state = loadState();
+            const currentDate = getCurrentDateString();
+            
+            if (state.days[currentDate]) {
+                const task = state.days[currentDate].tasks.find(t => t.id === taskId);
+                if (task) {
+                    // Update task
+                    task.hoursSpent = hoursSpent;
+                    task.notes = notes;
+                    
+                    // Mark as completed if hours met or exceeded
+                    if (hoursSpent >= task.hours) {
+                        task.completed = true;
+                    }
+                    
+                    // Update stats
+                    updateTaskStats(taskId, hoursSpent);
+                    
+                    saveState(state);
+                    updateUI();
+                    updateStreak();
+                    
+                    // Hide modal
+                    document.getElementById('taskModal').style.display = 'none';
+                }
+            }
+        }
+        
+        // Update task-specific stats
+        function updateTaskStats(taskId, hoursSpent) {
+            const state = loadState();
+            const oldHours = state.days[getCurrentDateString()].tasks.find(t => t.id === taskId).hoursSpent;
+            const hoursDiff = hoursSpent - oldHours;
+            
+            // Only update if there's a change
+            if (hoursDiff === 0) return;
+            
+            switch (taskId) {
+                case 'python':
+                    state.stats.pythonHours += hoursDiff;
+                    break;
+                case 'aws':
+                    state.stats.awsHours += hoursDiff;
+                    break;
+                case 'interview':
+                    state.stats.interviewHours += hoursDiff;
+                    break;
+                case 'project':
+                    state.stats.projectHours += hoursDiff;
+                    break;
+                case 'tech':
+                    state.stats.techHours += hoursDiff;
+                    break;
+                case 'portfolio':
+                    // If hours are met, count as a portfolio update
+                    if (hoursSpent >= state.days[getCurrentDateString()].tasks.find(t => t.id === 'portfolio').hours) {
+                        state.stats.portfolioUpdates++;
+                    }
+                    break;
+            }
+            
+            saveState(state);
+        }
+        
+        // Update streak
+        function updateStreak() {
+            const state = loadState();
+            const currentDate = getCurrentDateString();
+            const yesterdayDate = getYesterdayDateString();
+            
+            // Check if all tasks for today are completed
+            const todayCompleted = state.days[currentDate] && 
+                state.days[currentDate].tasks.every(task => task.completed);
+            
+            // Check if yesterday was completed
+            const yesterdayCompleted = state.days[yesterdayDate] && 
+                state.days[yesterdayDate].tasks.every(task => task.completed);
+            
+            // Update streak
+            if (todayCompleted) {
+                // If yesterday was completed or this is the first day, increment streak
+                if (yesterdayCompleted || !state.stats.lastCompletedDay) {
+                    state.stats.dayStreak++;
+                } else if (state.stats.lastCompletedDay !== currentDate) {
+                    // Reset streak if yesterday wasn't completed
+                    state.stats.dayStreak = 1;
+                }
+                
+                state.stats.lastCompletedDay = currentDate;
+            }
+            
+            saveState(state);
+        }
+        
+        // Update stats display
+        function updateStats() {
+            const state = loadState();
+            
+            // Calculate completion rate
+            let totalTasks = 0;
+            let completedTasks = 0;
+            
+            Object.keys(state.days).forEach(date => {
+                totalTasks += state.days[date].tasks.length;
+                completedTasks += state.days[date].tasks.filter(task => task.completed).length;
+            });
+            
+            const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            // Update stats display
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+            document.getElementById('dayStreak').textContent = state.stats.dayStreak;
+            document.getElementById('hoursInvested').textContent = Math.round(
+                state.stats.pythonHours + 
+                state.stats.awsHours + 
+                state.stats.interviewHours + 
+                state.stats.projectHours + 
+                state.stats.techHours
+            );
+            document.getElementById('portfolioUpdates').textContent = state.stats.portfolioUpdates;
+            
+            // Update progress bars
+            // Calculate target hours for the month so far
+            const today = new Date();
+            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            const daysPassed = Math.min(today.getDate(), daysInMonth);
+            
+            const targetPython = daysPassed * 2;
+            const targetAWS = daysPassed * 2;
+            const targetInterview = daysPassed * 1;
+            const targetProject = daysPassed * 4.5;
+            const targetTech = daysPassed * 1;
+            
+            document.getElementById('pythonProgress').style.width = `${Math.min(100, (state.stats.pythonHours / targetPython) * 100)}%`;
+            document.getElementById('awsProgress').style.width = `${Math.min(100, (state.stats.awsHours / targetAWS) * 100)}%`;
+            document.getElementById('interviewProgress').style.width = `${Math.min(100, (state.stats.interviewHours / targetInterview) * 100)}%`;
+            document.getElementById('projectProgress').style.width = `${Math.min(100, (state.stats.projectHours / targetProject) * 100)}%`;
+            document.getElementById('techProgress').style.width = `${Math.min(100, (state.stats.techHours / targetTech) * 100)}%`;
+            
+            // Update time distribution
+            document.getElementById('pythonHours').textContent = state.stats.pythonHours.toFixed(1);
+            document.getElementById('awsHours').textContent = state.stats.awsHours.toFixed(1);
+            document.getElementById('interviewHours').textContent = state.stats.interviewHours.toFixed(1);
+            document.getElementById('projectHours').textContent = state.stats.projectHours.toFixed(1);
+            document.getElementById('techHours').textContent = state.stats.techHours.toFixed(1);
+            
+            // Update streak info
+            document.getElementById('currentStreak').textContent = state.stats.dayStreak;
+        }
+        
+        // Setup calendar
+        function setupCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendarEl.innerHTML = '';
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth(); // May is 4 (0-indexed)
+            
+            // Get first day of the month
+            const firstDay = new Date(year, month, 1).getDay();
+            
+            // Get number of days in the month
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Add empty cells for days before the 1st
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-date inactive-day';
+                calendarEl.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = day === today.getDate();
+                const isPast = day < today.getDate();
+                const isFuture = day > today.getDate();
+                const isPortfolioDay = day % 3 === 0;
+                
+                // Set appropriate classes
+                dayEl.className = `calendar-date ${isToday ? 'current-day' : isPast ? 'past-day' : 'future-day'} ${isPortfolioDay ? 'portfolio-day' : ''}`;
+                dayEl.dataset.date = dateString;
+                
+                // Add content
+                dayEl.innerHTML = `
+                    <div class="calendar-date-number">${day}</div>
+                    <div class="calendar-date-tasks" id="calendarDay${day}">
+                        <!-- Task indicators will be added by updateCalendarHighlights -->
+                    </div>
+                `;
+                
+                // Add click event to show day details
+                dayEl.addEventListener('click', () => {
+                    showDayModal(dateString);
+                });
+                
+                calendarEl.appendChild(dayEl);
+            }
+            
+            // Call updateCalendarHighlights after calendar is built
+            updateCalendarHighlights();
+        }
+        
+        // Update calendar task completion highlights
+        function updateCalendarHighlights() {
+            const state = loadState();
+            
+            // For each date in state.days
+            Object.keys(state.days).forEach(date => {
+                const dateObj = new Date(date);
+                const day = dateObj.getDate();
+                const dayTasksEl = document.getElementById(`calendarDay${day}`);
+                
+                if (dayTasksEl) {
+                    dayTasksEl.innerHTML = '';
+                    
+                    // Count completed tasks
+                    const totalTasks = state.days[date].tasks.length;
+                    const completedTasks = state.days[date].tasks.filter(task => task.completed).length;
+                    
+                    // Add task completion indicator
+                    if (totalTasks > 0) {
+                        dayTasksEl.innerHTML = `
+                            <div class="completion-icon ${completedTasks === totalTasks ? 'complete' : 'incomplete'}"></div>
+                            ${completedTasks}/${totalTasks}
+                        `;
+                    }
+                }
+            });
+        }
+        
+        // Show day details modal
+        function showDayModal(dateString) {
+            const state = loadState();
+            const dateObj = new Date(dateString);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            // Set modal title
+            document.getElementById('modalDayTitle').textContent = formattedDate;
+            
+            // Get day's tasks
+            const dayTasksList = document.getElementById('dayTasksList');
+            dayTasksList.innerHTML = '';
+            
+            if (state.days[dateString]) {
+                // Add tasks for this day
+                state.days[dateString].tasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+                    taskItem.innerHTML = `
+                        <div class="task-label">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-details">
+                                Target: ${task.hours} hrs | Completed: ${task.hoursSpent} hrs
+                                <div class="badge ${task.completed ? 'badge-success' : 'badge-warning'}">
+                                    ${task.completed ? 'Completed' : 'Pending'}
+                                </div>
+                            </div>
+                            ${task.notes ? `<div class="task-notes"><strong>Notes:</strong> ${task.notes}</div>` : ''}
+                        </div>
+                    `;
+                    dayTasksList.appendChild(taskItem);
+                });
+            } else {
+                dayTasksList.innerHTML = '<div class="task-item">No tasks recorded for this day.</div>';
+            }
+            
+            // Show modal
+            document.getElementById('dayModal').style.display = 'block';
+        }
+        
+        // Save notes
+        function saveNotes() {
+            const state = loadState();
+            state.notes = document.getElementById('quickNotes').value;
+            saveState(state);
+            
+            // Show save confirmation
+            const saveBtn = document.getElementById('saveNotes');
+            saveBtn.textContent = 'Saved!';
+            setTimeout(() => {
+                saveBtn.textContent = 'Save Notes';
+            }, 2000);
+        }
+        
+        // Timer functions
+        let timerInterval;
+        
+        function startTimer() {
+            const state = loadState();
+            const taskSelector = document.getElementById('taskSelector');
+            const selectedTask = taskSelector.value;
+            
+            if (!selectedTask) {
+                alert('Please select a task first');
+                return;
+            }
+            
+            // Start or resume timer
+            if (!state.currentTimer.isRunning) {
+                state.currentTimer.task = selectedTask;
+                state.currentTimer.startTime = Date.now();
+                state.currentTimer.isRunning = true;
+                
+                // Disable task selection while timer is running
+                taskSelector.disabled = true;
+                
+                // Update button states
+                document.getElementById('startTimer').disabled = true;
+                document.getElementById('pauseTimer').disabled = false;
+                
+                // Start interval
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+                
+                saveState(state);
+            }
+        }
+        
+        function pauseTimer() {
+            const state = loadState();
+            
+            if (state.currentTimer.isRunning) {
+                // Calculate elapsed time and add to total
+                const elapsedSinceStart = (Date.now() - state.currentTimer.startTime) / 1000;
+                state.currentTimer.elapsedTime += elapsedSinceStart;
+                state.currentTimer.isRunning = false;
+                state.currentTimer.startTime = null;
+                
+                // Enable task selection
+                document.getElementById('taskSelector').disabled = false;
+                
+                // Update button states
+                document.getElementById('startTimer').disabled = false;
+                document.getElementById('pauseTimer').disabled = true;
+                
+                // Clear interval
+                clearInterval(timerInterval);
+                
+                saveState(state);
+                updateTimerDisplay();
+            }
+        }
+        
+        function resetTimer() {
+            const state = loadState();
+            
+            // If timer was running, pause it first
+            if (state.currentTimer.isRunning) {
+                pauseTimer();
+            }
+            
+            // If we have accumulated time, save it to the task
+            if (state.currentTimer.elapsedTime > 0 && state.currentTimer.task) {
+                const hoursSpent = state.currentTimer.elapsedTime / 3600; // Convert seconds to hours
+                const currentDate = getCurrentDateString();
+                
+                if (state.days[currentDate]) {
+                    const taskIndex = state.days[currentDate].tasks.findIndex(t => t.id === state.currentTimer.task);
+                    
+                    if (taskIndex !== -1) {
+                        // Add time to task
+                        state.days[currentDate].tasks[taskIndex].hoursSpent += hoursSpent;
+                        
+                        // Mark as completed if hours met or exceeded
+                        if (state.days[currentDate].tasks[taskIndex].hoursSpent >= state.days[currentDate].tasks[taskIndex].hours) {
+                            state.days[currentDate].tasks[taskIndex].completed = true;
+                        }
+                        
+                        // Update stats
+                        updateTaskStats(state.currentTimer.task, state.days[currentDate].tasks[taskIndex].hoursSpent);
+                    }
+                }
+            }
+            
+            // Reset timer state
+            state.currentTimer = {
+                task: '',
+                startTime: null,
+                elapsedTime: 0,
+                isRunning: false
+            };
+            
+            // Reset UI
+            document.getElementById('taskSelector').disabled = false;
+            document.getElementById('taskSelector').value = '';
+            document.getElementById('startTimer').disabled = false;
+            document.getElementById('pauseTimer').disabled = true;
+            document.getElementById('timerDisplay').textContent = '00:00:00';
+            
+            // Clear interval
+            clearInterval(timerInterval);
+            
+            saveState(state);
+            updateUI();
+            updateStreak();
+        }
+        
+        function updateTimerDisplay() {
+            const state = loadState();
+            let seconds = state.currentTimer.elapsedTime;
+            
+            // Add current running time if timer is active
+            if (state.currentTimer.isRunning) {
+                seconds += (Date.now() - state.currentTimer.startTime) / 1000;
+            }
+            
+            // Format time as HH:MM:SS
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            
+            const timeString = [
+                String(hours).padStart(2, '0'),
+                String(minutes).padStart(2, '0'),
+                String(remainingSeconds).padStart(2, '0')
+            ].join(':');
+            
+            document.getElementById('timerDisplay').textContent = timeString;
+        }
+        
+        // Theme functions
+        function toggleTheme() {
+            const isDarkMode = document.getElementById('themeToggle').checked;
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            
+            // Save preference
+            localStorage.setItem('darkModePreference', isDarkMode);
+        }
+        
+        function loadThemePreference() {
+            const isDarkMode = localStorage.getItem('darkModePreference') === 'true';
+            document.getElementById('themeToggle').checked = isDarkMode;
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        }
+    </script>
+</body>
+</html>

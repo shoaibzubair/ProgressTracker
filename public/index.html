@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Progress Tracker - May 2025</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Daily Progress Tracker - May 2025</h1>
+            <p>Track your job search and tech learning progress</p>
+            <div class="date-display" id="currentDate">Loading date...</div>
+            <div class="theme-switch">
+                <span class="theme-label">Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard">
+            <div class="left-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">May 2025 Calendar</h2>
+                        <div>
+                            <span class="badge badge-primary" id="currentMonth">May</span>
+                        </div>
+                    </div>
+                    <div class="calendar-header">
+                        <div class="calendar-day">Sun</div>
+                        <div class="calendar-day">Mon</div>
+                        <div class="calendar-day">Tue</div>
+                        <div class="calendar-day">Wed</div>
+                        <div class="calendar-day">Thu</div>
+                        <div class="calendar-day">Fri</div>
+                        <div class="calendar-day">Sat</div>
+                    </div>
+                    <div class="calendar" id="calendar">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Daily Tasks</h2>
+                        <div id="dailyTasksDate">For Today</div>
+                    </div>
+                    <ul class="task-list" id="taskList">
+                        <!-- Tasks will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Stats & Progress</h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="completionRate">0%</div>
+                            <div class="stat-label">Task Completion Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="dayStreak">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="hoursInvested">0</div>
+                            <div class="stat-label">Hours Invested</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="portfolioUpdates">0</div>
+                            <div class="stat-label">Portfolio Updates</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <h3>Monthly Progress</h3>
+                        <div>
+                            <div>Python/Bash/PowerShell</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="pythonProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>AWS Certification</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="awsProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Interview Prep</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="interviewProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Project Work</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="projectProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Additional Tech (Terraform/Jenkins)</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" id="techProgress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-distribution">
+                        <h3>Time Distribution</h3>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #3498db;"></div>
+                            <div class="time-block-label">Python/Bash/PowerShell: <span id="pythonHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #e74c3c;"></div>
+                            <div class="time-block-label">AWS Certification: <span id="awsHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #f39c12;"></div>
+                            <div class="time-block-label">Interview Prep: <span id="interviewHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #2ecc71;"></div>
+                            <div class="time-block-label">Project Work: <span id="projectHours">0</span> hrs</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-color" style="background-color: #9b59b6;"></div>
+                            <div class="time-block-label">Additional Tech: <span id="techHours">0</span> hrs</div>
+                        </div>
+                    </div>
+                    
+                    <div class="streak-info">
+                        You're on a <span class="streak-value" id="currentStreak">0</span> day streak! Keep it up!
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Focus Timer</h2>
+                    </div>
+                    <div class="timer-section">
+                        <select class="task-selector" id="taskSelector">
+                            <option value="">-- Select a task --</option>
+                            <option value="python">Python/Bash/PowerShell</option>
+                            <option value="aws">AWS Certification</option>
+                            <option value="interview">Interview Prep</option>
+                            <option value="project">Project Work</option>
+                            <option value="tech">Additional Tech</option>
+                            <option value="portfolio">Portfolio Update</option>
+                        </select>
+                        <div class="timer-display" id="timerDisplay">00:00:00</div>
+                        <div class="timer-controls">
+                            <button class="timer-btn start" id="startTimer">Start</button>
+                            <button class="timer-btn pause" id="pauseTimer" disabled>Pause</button>
+                            <button class="timer-btn reset" id="resetTimer">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Notes</h2>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" id="quickNotes" rows="4" placeholder="Add your quick notes or reminders here..."></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="saveNotes">Save Notes</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reminder-section">
+            <span class="reminder-icon">⏰</span>
+            <span>Remember: Tasks reset at 3:00 AM. Your active hours are 1:00 PM to 2:30 AM.</span>
+        </div>
+    </div>
+    
+    <!-- Daily Task Details Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeTaskModal">&times;</span>
+            <h2 id="modalTaskTitle">Task Details</h2>
+            <div class="form-group">
+                <label class="form-label">Hours Spent</label>
+                <input type="number" class="form-control" id="taskHours" min="0" max="24" step="0.5" value="0">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" id="taskNotes" rows="4" placeholder="What did you work on?"></textarea>
+            </div>
+            <button class="btn btn-success btn-block" id="saveTaskDetails">Save</button>
+        </div>
+    </div>
+    
+    <!-- Day Details Modal -->
+    <div class="modal" id="dayModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeDayModal">&times;</span>
+            <h2 id="modalDayTitle">Day Details</h2>
+            <div id="dayTasksList">
+                <!-- Day's tasks will be populated here -->
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
