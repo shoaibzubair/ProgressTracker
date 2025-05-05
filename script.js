@@ -139,77 +139,106 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize calendar
-    function initializeCalendar() {
-        elements.calendar.innerHTML = '';
-        
-        const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
-        
-        // Get the first day of the month and how many days in the month
-        const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        
-        // Add empty cells for days before the first day of the month
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            const emptyDay = document.createElement('div');
-            emptyDay.className = 'calendar-date empty';
-            elements.calendar.appendChild(emptyDay);
-        }
-        
-        // Create calendar days
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateObj = new Date(currentYear, currentMonth, day);
-            const dateStr = dateObj.toISOString().split('T')[0];
-            const isToday = day === today.getDate();
-            
-            const calendarDate = document.createElement('div');
-            calendarDate.className = 'calendar-date';
-            calendarDate.dataset.date = dateStr;
-            
-            if (isToday) {
-                calendarDate.classList.add('today');
-            }
-            
-            if (state.days[dateStr]) {
-                // Check if all tasks are completed for this day
-                const dayData = state.days[dateStr];
-                const allTasksCompleted = dayData.tasks && dayData.tasks.every(task => task.completed);
-                
-                if (allTasksCompleted) {
-                    calendarDate.classList.add('completed');
-                } else if (dayData.tasks && dayData.tasks.some(task => task.completed)) {
-                    calendarDate.classList.add('partial');
-                }
-            }
-            
-            // Date number
-            const dateNumber = document.createElement('div');
-            dateNumber.className = 'date-number';
-            dateNumber.textContent = day;
-            calendarDate.appendChild(dateNumber);
-            
-            // Add click event to show day's tasks
-            calendarDate.addEventListener('click', function() {
-                state.selectedDate = dateStr;
-                loadTasksForDate(dateStr);
-                
-                // Highlight selected date
-                document.querySelectorAll('.calendar-date.selected').forEach(el => {
-                    el.classList.remove('selected');
-                });
-                calendarDate.classList.add('selected');
-            });
-            
-            elements.calendar.appendChild(calendarDate);
-        }
-        
-        // Select today's date in the calendar
-        const todayElement = document.querySelector(`.calendar-date[data-date="${state.selectedDate}"]`);
-        if (todayElement) {
-            todayElement.classList.add('selected');
-        }
+    // Fix for the date issue in initializeCalendar function
+function initializeCalendar() {
+    elements.calendar.innerHTML = '';
+
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    // Get the first day of the month and how many days in the month
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-date inactive-day';
+        elements.calendar.appendChild(emptyDay);
     }
+
+    // Create calendar days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(currentYear, currentMonth, day);
+        
+        // FIX: Use local timezone instead of UTC for date string
+        const dateStr = formatDateToYYYYMMDD(dateObj);
+        
+        const isToday = day === today.getDate();
+        const isFuture = dateObj > today;
+        const isPast = dateObj < today;
+
+        const calendarDate = document.createElement('div');
+        calendarDate.className = 'calendar-date';
+        calendarDate.dataset.date = dateStr;
+        console.log('Date:', dateStr);
+
+        // Add appropriate classes for past, current, or future days
+        if (isToday) {
+            calendarDate.classList.add('current-day');
+        } else if (isPast) {
+            calendarDate.classList.add('past-day');
+        } else if (isFuture) {
+            calendarDate.classList.add('future-day');
+        }
+
+        // Add the 'portfolio-day' class if the day is divisible by 3
+        if (day % 3 === 0) {
+            calendarDate.classList.add('portfolio-day');
+        }
+
+        // Date number
+        const dateNumber = document.createElement('div');
+        dateNumber.className = 'calendar-date-number';
+        dateNumber.textContent = day;
+        calendarDate.appendChild(dateNumber);
+
+        // Task indicators container
+        const taskContainer = document.createElement('div');
+        taskContainer.className = 'calendar-date-tasks';
+        taskContainer.id = `calendarDay${day}`;
+
+        // Add task completion status
+        const dayData = state.days[dateStr];
+        if (dayData && dayData.tasks) {
+            const totalTasks = dayData.tasks.length;
+            const completedTasks = dayData.tasks.filter(task => task.completed).length;
+
+            const completionIcon = document.createElement('div');
+            completionIcon.className = 'completion-icon';
+            completionIcon.classList.add(completedTasks === totalTasks ? 'complete' : 'incomplete');
+            taskContainer.appendChild(completionIcon);
+
+            const taskSummary = document.createTextNode(`${completedTasks}/${totalTasks}`);
+            taskContainer.appendChild(taskSummary);
+        }
+
+        calendarDate.appendChild(taskContainer);
+
+        // Add click event to show day's tasks
+        calendarDate.addEventListener('click', function () {
+            state.selectedDate = dateStr;
+            loadTasksForDate(dateStr);
+
+            // Highlight selected date
+            document.querySelectorAll('.calendar-date.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            calendarDate.classList.add('selected');
+        });
+
+        elements.calendar.appendChild(calendarDate);
+    }
+}
+
+// Helper function to format date in YYYY-MM-DD format using local timezone
+function formatDateToYYYYMMDD(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
     // Load tasks for a specific date
     async function loadTasksForDate(date) {
