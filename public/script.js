@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load tasks for a specific date
     async function loadTasksForDate(date) {
         elements.taskList.innerHTML = '';
-        elements.dailyTasksDate.textContent = `for ${formatDate(new Date(date))}`;
+        elements.dailyTasksDate.textContent = `For ${formatDate(new Date(date))}`;
 
         const today = new Date().toISOString().split('T')[0];
         const isFutureDate = date > today;
@@ -273,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dayData.tasks.forEach(task => {
                 const taskItem = document.createElement('li');
                 taskItem.className = 'task-item';
+                taskItem.dataset.taskId = task.task_id;
                 if (task.completed) {
                     taskItem.classList.add('completed');
                 }
@@ -286,21 +287,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkbox.addEventListener('change', () => toggleTaskCompletion(date, task.task_id, checkbox.checked));
                 taskItem.appendChild(checkbox);
 
-                // Task content
-                const taskContent = document.createElement('div');
-                taskContent.className = 'task-content';
+                // Task label container
+                const taskLabel = document.createElement('div');
+                taskLabel.className = 'task-label';
 
+                // Task name
                 const taskName = document.createElement('div');
                 taskName.className = 'task-name';
                 taskName.textContent = task.name;
-                taskContent.appendChild(taskName);
+                taskLabel.appendChild(taskName);
 
-                const taskHours = document.createElement('div');
-                taskHours.className = 'task-hours';
-                taskHours.textContent = `${task.hours_spent} / ${task.hours} hours`;
-                taskContent.appendChild(taskHours);
+                // Task details
+                const taskDetails = document.createElement('div');
+                taskDetails.className = 'task-details';
+                taskDetails.textContent = `Target: ${task.hours} hours | Completed: ${task.hours_spent} hours`;
+                taskLabel.appendChild(taskDetails);
 
-                taskItem.appendChild(taskContent);
+                taskItem.appendChild(taskLabel);
 
                 // Edit button
                 const editButton = document.createElement('button');
@@ -319,6 +322,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle task completion
     async function toggleTaskCompletion(date, taskId, completed) {
+        const today = new Date().toISOString().split('T')[0];
+        if (date > today) {
+            alert('You cannot complete tasks for future dates.');
+            return;
+        }
+
         try {
             const response = await fetch(`/api/tasks/${date}/${taskId}/completion`, {
                 method: 'PUT',
@@ -327,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({ completed })
             });
-            
+
             if (response.ok) {
                 // Update local state
                 if (state.days[date]) {
@@ -339,10 +348,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
-                
+
                 // Reload state to get updated stats
                 await loadState();
-                
+
                 // Update UI
                 loadTasksForDate(date);
                 initializeCalendar();
@@ -357,15 +366,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open task modal for editing
     function openTaskModal(date, task) {
+        const today = new Date().toISOString().split('T')[0];
+        if (date > today) {
+            alert('You cannot edit tasks for future dates.');
+            return;
+        }
+
         state.taskModalData = {
             date: date,
             taskId: task.task_id
         };
-        
+
         elements.modalTaskTitle.textContent = task.name;
         elements.taskHours.value = task.hours_spent;
         elements.taskNotes.value = task.notes || '';
-        
+
         elements.taskModal.style.display = 'block';
     }
 
