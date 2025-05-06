@@ -1,9 +1,9 @@
 // app.js - Express server with SQLite database
 const express = require('express');
-const { open } = require('sqlite');
-const sqlite3 = require('sqlite3');
+const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
+const { Database } = require('sqlite');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,12 +18,11 @@ let db;
 // Initialize SQLite database
 async function initializeDatabase() {
     try {
-        // Open database connection
-        db = await open({
-            filename: './progress_tracker.db',
-            driver: sqlite3.Database
-        });
+        // Create a new Database instance directly
+        db = new Database();
         
+        // Open the database file
+        await db.open('./progress_tracker.db');
         console.log('Connected to the SQLite database.');
         
         // Create tables if they don't exist
@@ -104,7 +103,7 @@ app.get('/api/state', async (req, res) => {
         
         // For each day, get its tasks
         for (const day of days) {
-            const tasks = await db.all(`SELECT * FROM tasks WHERE date = ?`, day.date);
+            const tasks = await db.all(`SELECT * FROM tasks WHERE date = ?`, [day.date]);
             state.days[day.date] = { tasks };
         }
         
@@ -175,7 +174,7 @@ app.post('/api/days', async (req, res) => {
         const dayOfMonth = new Date(date).getDate();
         
         // First, insert the day
-        await db.run(`INSERT OR IGNORE INTO days (date) VALUES (?)`, date);
+        await db.run(`INSERT OR IGNORE INTO days (date) VALUES (?)`, [date]);
         
         // Define standard tasks
         const tasks = [
@@ -326,7 +325,7 @@ app.put('/api/notes', async (req, res) => {
         
         await db.run(
             `UPDATE notes SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1`, 
-            content
+            [content]
         );
         
         res.json({ success: true });
@@ -421,7 +420,7 @@ async function updateTaskStats(taskId, hoursDiff) {
             return;
     }
     
-    await db.run(`UPDATE stats SET ${column} = ${column} + ? WHERE id = 1`, hoursDiff);
+    await db.run(`UPDATE stats SET ${column} = ${column} + ? WHERE id = 1`, [hoursDiff]);
 }
 
 // Helper function to update streak
@@ -432,7 +431,7 @@ async function updateStreak(currentDate) {
         const yesterdayDate = yesterday.toISOString().split('T')[0];
         
         // Check if all tasks for today are completed
-        const todayTasks = await db.all(`SELECT completed FROM tasks WHERE date = ?`, currentDate);
+        const todayTasks = await db.all(`SELECT completed FROM tasks WHERE date = ?`, [currentDate]);
         
         if (todayTasks.length === 0) return;
         
@@ -440,7 +439,7 @@ async function updateStreak(currentDate) {
         
         if (todayCompleted) {
             // Check if yesterday was completed
-            const yesterdayTasks = await db.all(`SELECT completed FROM tasks WHERE date = ?`, yesterdayDate);
+            const yesterdayTasks = await db.all(`SELECT completed FROM tasks WHERE date = ?`, [yesterdayDate]);
             const yesterdayCompleted = yesterdayTasks.length > 0 && yesterdayTasks.every(task => task.completed);
             
             // Get current streak info
