@@ -270,6 +270,36 @@ app.post('/api/days', async (req, res) => {
     }
 });
 
+// Add a new task for a specific date
+app.post('/api/tasks/:date', async (req, res) => {
+    const { date } = req.params; // Get the date from the URL
+    const { name, hours } = req.body; // Get the task details from the request body
+
+    // Validate the input
+    if (!name || !hours || hours <= 0) {
+        return res.status(400).json({ error: 'Invalid task details' });
+    }
+
+    try {
+        const connection = await pool.getConnection();
+
+        // Ensure the day exists in the `days` table
+        await connection.query('INSERT IGNORE INTO days (date) VALUES (?)', [date]);
+
+        // Insert the new task into the `tasks` table
+        await connection.query(
+            'INSERT INTO tasks (date, task_id, name, hours, completed, hours_spent, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [date, `custom_${Date.now()}`, name, hours, 0, 0, '']
+        );
+
+        connection.release();
+        res.status(201).json({ success: true, message: 'Task added successfully' });
+    } catch (err) {
+        console.error('Error adding new task:', err);
+        res.status(500).json({ error: 'Failed to add new task' });
+    }
+});
+
 // Update task completion status
 app.put('/api/tasks/:date/:taskId/completion', async (req, res) => {
     const { date, taskId } = req.params;

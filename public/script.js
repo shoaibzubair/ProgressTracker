@@ -757,6 +757,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 elements.dayModal.style.display = 'none';
             }
         });
+
+        // Add event listener for the form submission
+        document.getElementById('addTaskForm').addEventListener('submit', addNewTask);
     }
 
     // Initialize theme
@@ -829,6 +832,48 @@ document.addEventListener('DOMContentLoaded', function() {
             taskContainer.innerHTML = ''; // Clear the container
             taskContainer.appendChild(completionIcon); // Add the updated completion icon
             taskContainer.appendChild(document.createTextNode(`${completedTasks}/${totalTasks}`)); // Add the updated text
+        }
+    }
+
+    // Add this function to handle adding a new task
+    async function addNewTask(event) {
+        event.preventDefault(); // Prevent form submission
+
+        const taskName = document.getElementById('newTaskName').value.trim();
+        const taskHours = parseFloat(document.getElementById('newTaskHours').value);
+        const taskDate = document.getElementById('newTaskDate').value;
+
+        if (!taskName || isNaN(taskHours) || taskHours <= 0 || !taskDate) {
+            alert('Please provide valid task details.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/tasks/${taskDate}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: taskName,
+                    hours: taskHours,
+                }),
+            });
+
+            if (response.ok) {
+                // Reload state and update UI
+                await loadState();
+                loadTasksForDate(state.selectedDate);
+                initializeCalendar();
+                updateStatsDisplay();
+
+                // Clear the form
+                document.getElementById('addTaskForm').reset();
+            } else {
+                console.error('Failed to add new task');
+            }
+        } catch (error) {
+            console.error('Error adding new task:', error);
         }
     }
 });
