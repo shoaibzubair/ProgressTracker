@@ -354,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await loadState();
                 loadTasksForDate(date);
                 updateStatsDisplay();
+                updateCompletionIcon(date); // Update the completion icon
             } else {
                 console.error('Failed to update task completion');
             }
@@ -408,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadTasksForDate(date);
                 initializeCalendar();
                 updateStatsDisplay();
+                updateCompletionIcon(date); // Update the completion icon
             } else {
                 console.error('Failed to update task details');
             }
@@ -801,5 +803,32 @@ document.addEventListener('DOMContentLoaded', function() {
             displayMinutes.toString().padStart(2, '0'),
             displaySeconds.toString().padStart(2, '0')
         ].join(':');
+    }
+
+    function updateCompletionIcon(date) {
+        const dayData = state.days[date];
+        const taskContainer = document.getElementById(`calendarDay${new Date(date).getDate()}`);
+
+        if (dayData && dayData.tasks) {
+            const totalTasks = dayData.tasks.length;
+            const completedTasks = dayData.tasks.filter(task => task.completed).length;
+
+            // Find or create the completion icon
+            let completionIcon = taskContainer.querySelector('.completion-icon');
+            if (!completionIcon) {
+                completionIcon = document.createElement('div');
+                completionIcon.className = 'completion-icon';
+                taskContainer.appendChild(completionIcon);
+            }
+
+            // Update the completion icon's class
+            completionIcon.classList.remove('complete', 'incomplete');
+            completionIcon.classList.add(completedTasks === totalTasks ? 'complete' : 'incomplete');
+
+            // Update the text inside the task container
+            taskContainer.innerHTML = ''; // Clear the container
+            taskContainer.appendChild(completionIcon); // Add the updated completion icon
+            taskContainer.appendChild(document.createTextNode(`${completedTasks}/${totalTasks}`)); // Add the updated text
+        }
     }
 });
