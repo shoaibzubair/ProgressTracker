@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const dbConfig = {
     host: 'localhost',
     user: 'root',        // Update with your MariaDB username
-    password: '',        // Update with your MariaDB password
+    password: '<P00p>',        // Update with your MariaDB password
     database: 'progress_tracker',
     waitForConnections: true,
     connectionLimit: 10,
@@ -274,45 +274,49 @@ app.post('/api/days', async (req, res) => {
 app.put('/api/tasks/:date/:taskId/completion', async (req, res) => {
     const { date, taskId } = req.params;
     const { completed } = req.body;
-    
+
     try {
         const connection = await pool.getConnection();
-        
+
         // Get the current task
         const [tasks] = await connection.query(
             'SELECT * FROM tasks WHERE date = ? AND task_id = ?',
             [date, taskId]
         );
-        
+
         if (tasks.length === 0) {
             connection.release();
             return res.status(404).json({ error: 'Task not found' });
         }
-        
+
         const task = tasks[0];
-        
-        // If marking complete and hours not met, set hours spent to target
+
+        // Adjust hours spent if marking complete or undoing
         let hoursSpent = task.hours_spent;
         if (completed && hoursSpent < task.hours) {
-            hoursSpent = task.hours;
+            hoursSpent = task.hours; // Set to target hours if marking complete
+        } else if (!completed) {
+            hoursSpent = 0; // Reset hours spent if undoing
         }
-        
+
+        // Update the task in the database
         await connection.query(
             'UPDATE tasks SET completed = ?, hours_spent = ? WHERE date = ? AND task_id = ?',
             [completed ? 1 : 0, hoursSpent, date, taskId]
         );
-        
-        // Update task stats if completing
+
+        // Update task stats
+        const hoursDiff = completed ? (hoursSpent - task.hours_spent) : -task.hours_spent;
+        await updateTaskStats(connection, taskId, hoursDiff);
+
+        // Check and update streak only if marking as completed
         if (completed) {
-            await updateTaskStats(connection, taskId, hoursSpent - task.hours_spent);
+            await updateStreak(connection, date);
         }
-        
-        // Check and update streak
-        await updateStreak(connection, date);
-        
+
         connection.release();
         res.json({ success: true, taskId, completed });
-        
+
     } catch (err) {
         console.error('Error updating task completion:', err);
         res.status(500).json({ error: err.message });

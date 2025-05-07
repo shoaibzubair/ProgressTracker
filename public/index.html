@@ -56,6 +56,15 @@
                         <!-- Tasks will be populated by JavaScript -->
                     </ul>
                 </div>
+                <div id="addTaskSection">
+                    <h3>Add New Task</h3>
+                    <form id="addTaskForm">
+                        <input type="text" id="newTaskName" placeholder="Task Name" required />
+                        <input type="number" id="newTaskHours" placeholder="Hours" min="0" step="0.1" required />
+                        <input type="date" id="newTaskDate" required />
+                        <button type="submit">Add Task</button>
+                    </form>
+                </div>
             </div>
             
             <div class="right-column">
