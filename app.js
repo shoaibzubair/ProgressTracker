@@ -400,6 +400,32 @@ app.put('/api/tasks/:date/:taskId', async (req, res) => {
     }
 });
 
+// Delete a task for a specific date
+app.delete('/api/tasks/:date/:taskId', async (req, res) => {
+    const { date, taskId } = req.params;
+
+    try {
+        const connection = await pool.getConnection();
+
+        // Delete the task from the database
+        const [result] = await connection.query(
+            'DELETE FROM tasks WHERE date = ? AND task_id = ?',
+            [date, taskId]
+        );
+
+        connection.release();
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ success: true, message: 'Task deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Task not found' });
+        }
+    } catch (err) {
+        console.error('Error deleting task:', err);
+        res.status(500).json({ error: 'Failed to delete task' });
+    }
+});
+
 // Save notes
 app.put('/api/notes', async (req, res) => {
     const { content } = req.body;

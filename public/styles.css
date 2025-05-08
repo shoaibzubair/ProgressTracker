@@ -280,11 +280,20 @@ h1 {
 
 .btn-success {
     background-color: var(--success);
-    color: white;
+    color: rgb(255, 255, 255);
 }
 
 .btn-success:hover {
     background-color: #27ae60;
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
 }
 
 .btn-block {

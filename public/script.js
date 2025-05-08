@@ -365,22 +365,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open task modal for editing
     function openTaskModal(date, task) {
-        const today = new Date().toISOString().split('T')[0];
-        if (date > today) {
-            alert('You cannot edit tasks for future dates.');
-            return;
-        }
+        state.selectedDate = date; // Store the selected date in the state
+        state.selectedTaskId = task.task_id; // Store the selected task ID in the state
 
-        state.taskModalData = {
-            date: date,
-            taskId: task.task_id
-        };
+        document.getElementById('modalTaskTitle').textContent = task.name;
+        document.getElementById('taskHours').value = task.hours_spent || 0;
+        document.getElementById('taskNotes').value = task.notes || '';
 
-        elements.modalTaskTitle.textContent = task.name;
-        elements.taskHours.value = task.hours_spent;
-        elements.taskNotes.value = task.notes || '';
-
-        elements.taskModal.style.display = 'block';
+        document.getElementById('taskModal').style.display = 'block';
     }
 
     // Save task details
@@ -760,6 +752,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add event listener for the form submission
         document.getElementById('addTaskForm').addEventListener('submit', addNewTask);
+
+        // Attach event listener to the delete button
+        document.getElementById('deleteTask').addEventListener('click', deleteTask);
     }
 
     // Initialize theme
@@ -874,6 +869,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error adding new task:', error);
+        }
+    }
+
+    // Add this function to delete a task
+    async function deleteTask() {
+        const taskId = state.selectedTaskId; // Store the selected task ID in the state
+        const date = state.selectedDate; // Store the selected date in the state
+
+        if (!taskId || !date) {
+            alert('No task selected to delete.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/tasks/${date}/${taskId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                // Reload state and update UI
+                await loadState();
+                loadTasksForDate(date);
+                initializeCalendar();
+                updateStatsDisplay();
+
+                // Close the modal
+                document.getElementById('taskModal').style.display = 'none';
+            } else {
+                console.error('Failed to delete task');
+            }
+        } catch (error) {
+            console.error('Error deleting task:', error);
         }
     }
 });
