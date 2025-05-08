@@ -56,12 +56,22 @@
                         <!-- Tasks will be populated by JavaScript -->
                     </ul>
                 </div>
-                <div class="card">
+                <!-- <div class="card">
                     <h3>Add New Task</h3>
                     <form id="addTaskForm">
                         <input type="text" id="newTaskName" placeholder="Task Name" required />
                         <input type="number" id="newTaskHours" placeholder="Hours" min="0" step="0.1" required />
                         <input type="date" id="newTaskDate" required />
+                        <button type="submit">Add Task</button>
+                    </form>
+                </div> -->
+                <div id="addTaskSection" class="card">
+                    <h3>Add New Task</h3>
+                    <form id="addTaskForm">
+                        <input type="text" id="newTaskName" placeholder="Task Name" required />
+                        <input type="number" id="newTaskHours" placeholder="Hours" min="0" step="0.1" required />
+                        <input type="date" id="newTaskStartDate" placeholder="Start Date" required />
+                        <input type="date" id="newTaskEndDate" placeholder="End Date" required />
                         <button type="submit">Add Task</button>
                     </form>
                 </div>

@@ -182,98 +182,98 @@ app.get('/api/state', async (req, res) => {
 });
 
 // Generate tasks for a day
-app.post('/api/days', async (req, res) => {
-    const { date } = req.body;
-    if (!date) {
-        return res.status(400).json({ error: 'Date is required' });
-    }
+// app.post('/api/days', async (req, res) => {
+//     const { date } = req.body;
+//     if (!date) {
+//         return res.status(400).json({ error: 'Date is required' });
+//     }
     
-    try {
-        const connection = await pool.getConnection();
+//     try {
+//         const connection = await pool.getConnection();
         
-        // Parse the date to get the day of month
-        const dayOfMonth = new Date(date).getDate();
+//         // Parse the date to get the day of month
+//         const dayOfMonth = new Date(date).getDate();
         
-        // First, insert the day (ignore if already exists)
-        await connection.query('INSERT IGNORE INTO days (date) VALUES (?)', [date]);
+//         // First, insert the day (ignore if already exists)
+//         await connection.query('INSERT IGNORE INTO days (date) VALUES (?)', [date]);
         
-        // Define standard tasks
-        const tasks = [
-            {
-                task_id: 'python',
-                name: 'Python/Bash/PowerShell',
-                hours: 2,
-                completed: 0,
-                hours_spent: 0,
-                notes: ''
-            },
-            {
-                task_id: 'aws',
-                name: 'AWS Certification Prep',
-                hours: 2,
-                completed: 0,
-                hours_spent: 0,
-                notes: ''
-            },
-            {
-                task_id: 'interview',
-                name: 'Interview Prep',
-                hours: 1,
-                completed: 0,
-                hours_spent: 0,
-                notes: ''
-            },
-            {
-                task_id: 'project',
-                name: 'Project Work',
-                hours: 4.5,
-                completed: 0,
-                hours_spent: 0,
-                notes: ''
-            },
-            {
-                task_id: 'tech',
-                name: 'Additional Tech (Terraform/Jenkins)',
-                hours: 1,
-                completed: 0,
-                hours_spent: 0,
-                notes: ''
-            }
-        ];
+//         // Define standard tasks
+//         const tasks = [
+//             {
+//                 task_id: 'python',
+//                 name: 'Python/Bash/PowerShell',
+//                 hours: 2,
+//                 completed: 0,
+//                 hours_spent: 0,
+//                 notes: ''
+//             },
+//             {
+//                 task_id: 'aws',
+//                 name: 'AWS Certification Prep',
+//                 hours: 2,
+//                 completed: 0,
+//                 hours_spent: 0,
+//                 notes: ''
+//             },
+//             {
+//                 task_id: 'interview',
+//                 name: 'Interview Prep',
+//                 hours: 1,
+//                 completed: 0,
+//                 hours_spent: 0,
+//                 notes: ''
+//             },
+//             {
+//                 task_id: 'project',
+//                 name: 'Project Work',
+//                 hours: 4.5,
+//                 completed: 0,
+//                 hours_spent: 0,
+//                 notes: ''
+//             },
+//             {
+//                 task_id: 'tech',
+//                 name: 'Additional Tech (Terraform/Jenkins)',
+//                 hours: 1,
+//                 completed: 0,
+//                 hours_spent: 0,
+//                 notes: ''
+//             }
+//         ];
         
-        // Add portfolio task if day is divisible by 3
-        if (dayOfMonth % 3 === 0) {
-            tasks.push({
-                task_id: 'portfolio',
-                name: 'Portfolio Website Update',
-                hours: 1,
-                completed: 0,
-                hours_spent: 0,
-                notes: ''
-            });
-        }
+//         // Add portfolio task if day is divisible by 3
+//         if (dayOfMonth % 3 === 0) {
+//             tasks.push({
+//                 task_id: 'portfolio',
+//                 name: 'Portfolio Website Update',
+//                 hours: 1,
+//                 completed: 0,
+//                 hours_spent: 0,
+//                 notes: ''
+//             });
+//         }
         
-        // Insert tasks for this day
-        for (const task of tasks) {
-            await connection.query(
-                'INSERT INTO tasks (date, task_id, name, hours, completed, hours_spent, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [date, task.task_id, task.name, task.hours, task.completed, task.hours_spent, task.notes]
-            );
-        }
+//         // Insert tasks for this day
+//         for (const task of tasks) {
+//             await connection.query(
+//                 'INSERT INTO tasks (date, task_id, name, hours, completed, hours_spent, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+//                 [date, task.task_id, task.name, task.hours, task.completed, task.hours_spent, task.notes]
+//             );
+//         }
         
-        connection.release();
-        res.status(201).json({ success: true, date, taskCount: tasks.length });
+//         connection.release();
+//         res.status(201).json({ success: true, date, taskCount: tasks.length });
         
-    } catch (err) {
-        console.error('Error creating day:', err);
-        res.status(500).json({ error: err.message });
-    }
-});
+//     } catch (err) {
+//         console.error('Error creating day:', err);
+//         res.status(500).json({ error: err.message });
+//     }
+// });
 
-// Add a new task for a specific date
+// Add a new task for a specific date or a range of dates
 app.post('/api/tasks/:date', async (req, res) => {
     const { date } = req.params; // Get the date from the URL
-    const { name, hours } = req.body; // Get the task details from the request body
+    const { name, hours, startDate, endDate } = req.body; // Get task details and optional date range
 
     // Validate the input
     if (!name || !hours || hours <= 0) {
@@ -283,6 +283,36 @@ app.post('/api/tasks/:date', async (req, res) => {
     try {
         const connection = await pool.getConnection();
 
+        // If startDate and endDate are provided, handle repetitive tasks
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            // Validate the date range
+            if (start > end) {
+                connection.release();
+                return res.status(400).json({ error: 'Invalid date range' });
+            }
+
+            // Loop through the date range and add tasks
+            for (let currentDate = start; currentDate <= end; currentDate.setDate(currentDate.getDate() + 1)) {
+                const formattedDate = currentDate.toISOString().split('T')[0];
+
+                // Ensure the day exists in the `days` table
+                await connection.query('INSERT IGNORE INTO days (date) VALUES (?)', [formattedDate]);
+
+                // Insert the new task into the `tasks` table
+                await connection.query(
+                    'INSERT INTO tasks (date, task_id, name, hours, completed, hours_spent, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    [formattedDate, `custom_${Date.now()}`, name, hours, 0, 0, '']
+                );
+            }
+
+            connection.release();
+            return res.status(201).json({ success: true, message: 'Repetitive tasks added successfully' });
+        }
+
+        // If no date range is provided, add a single task for the specified date
         // Ensure the day exists in the `days` table
         await connection.query('INSERT IGNORE INTO days (date) VALUES (?)', [date]);
 
@@ -295,8 +325,8 @@ app.post('/api/tasks/:date', async (req, res) => {
         connection.release();
         res.status(201).json({ success: true, message: 'Task added successfully' });
     } catch (err) {
-        console.error('Error adding new task:', err);
-        res.status(500).json({ error: 'Failed to add new task' });
+        console.error('Error adding task:', err);
+        res.status(500).json({ error: 'Failed to add task' });
     }
 });
 

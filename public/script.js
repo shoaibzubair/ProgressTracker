@@ -252,30 +252,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Check if tasks for this date exist
         if (!state.days[date]) {
-            // Create tasks for this date if they don't exist
-            try {
-                const response = await fetch('/api/days', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ date }),
-                });
-
-                if (response.ok) {
-                    // Reload state
-                    await loadState();
-                } else {
-                    console.error('Failed to create tasks for date:', date);
-                    elements.taskList.innerHTML = '<li class="no-tasks">Failed to load tasks for this day.</li>';
-                    return;
-                }
-            } catch (error) {
-                console.error('Error creating tasks for date:', error);
-                elements.taskList.innerHTML = '<li class="no-tasks">Error loading tasks. Please try again.</li>';
-                return;
+                
+            console.error('Failed to LOAD tasks for date:', date);
+            elements.taskList.innerHTML = '<li class="no-tasks">Failed to load tasks for this day.</li>';             
             }
-        }
 
         // Display tasks
         const dayData = state.days[date];
@@ -836,15 +816,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const taskName = document.getElementById('newTaskName').value.trim();
         const taskHours = parseFloat(document.getElementById('newTaskHours').value);
-        const taskDate = document.getElementById('newTaskDate').value;
+        const startDate = document.getElementById('newTaskStartDate').value;
+        const endDate = document.getElementById('newTaskEndDate').value;
 
-        if (!taskName || isNaN(taskHours) || taskHours <= 0 || !taskDate) {
-            alert('Please provide valid task details.');
+        if (!taskName || isNaN(taskHours) || taskHours <= 0 || !startDate || !endDate) {
+            alert('Please provide valid task details and date range.');
             return;
         }
 
         try {
-            const response = await fetch(`/api/tasks/${taskDate}`, {
+            const response = await fetch(`/api/tasks/${startDate}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -852,23 +833,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({
                     name: taskName,
                     hours: taskHours,
+                    startDate,
+                    endDate,
                 }),
             });
 
             if (response.ok) {
                 // Reload state and update UI
                 await loadState();
-                loadTasksForDate(state.selectedDate);
                 initializeCalendar();
-                updateStatsDisplay();
-
-                // Clear the form
-                document.getElementById('addTaskForm').reset();
+                alert('Repetitive tasks added successfully!');
+                document.getElementById('addTaskForm').reset(); // Clear the form
             } else {
-                console.error('Failed to add new task');
+                console.error('Failed to add repetitive tasks');
             }
         } catch (error) {
-            console.error('Error adding new task:', error);
+            console.error('Error adding repetitive tasks:', error);
         }
     }
 
