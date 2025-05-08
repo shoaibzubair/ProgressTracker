@@ -633,6 +633,72 @@ async function updateStreak(connection, currentDate) {
     }
 }
 
+// Get the current day streak
+app.get('/api/streak', async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+
+        // Update the stats table with the current streak and last completed day
+        await connection.query(`
+            UPDATE stats
+            SET 
+                day_streak = (
+                    WITH daily_completion AS (
+                        SELECT date, 
+                              CASE WHEN MIN(completed) = 1 THEN 1 ELSE 0 END AS all_completed 
+                        FROM tasks 
+                        GROUP BY date
+                    ),
+                    current_streak AS (
+                        SELECT COUNT(*) AS streak_length 
+                        FROM (
+                            SELECT date, all_completed,
+                                   SUM(CASE WHEN all_completed = 0 THEN 1 ELSE 0 END) 
+                                       OVER (ORDER BY date DESC) AS streak_break
+                            FROM daily_completion
+                            WHERE date <= CURRENT_DATE
+                            ORDER BY date DESC
+                        ) AS recent_days
+                        WHERE all_completed = 1 AND streak_break = 0
+                    )
+                    SELECT CASE 
+                              WHEN EXISTS (
+                                  SELECT 1 FROM daily_completion 
+                                  WHERE date = CURRENT_DATE AND all_completed = 0
+                              ) THEN 0
+                              ELSE COALESCE((SELECT streak_length FROM current_streak), 0)
+                           END
+                ),
+                last_completed_day = (
+                    SELECT MAX(date) 
+                    FROM (
+                        SELECT date 
+                        FROM tasks 
+                        GROUP BY date 
+                        HAVING MIN(completed) = 1
+                    ) AS completed_days
+                    WHERE date <= CURRENT_DATE
+                )
+            WHERE id = 1
+        `);
+
+        // Fetch the updated streak value from the stats table
+        const [rows] = await connection.query('SELECT day_streak FROM stats WHERE id = 1');
+
+        connection.release();
+
+        // Return the streak value
+        if (rows.length > 0) {
+            res.json({ currentStreak: rows[0].day_streak });
+        } else {
+            res.json({ currentStreak: 0 }); // Default to 0 if no streak is found
+        }
+    } catch (err) {
+        console.error('Error fetching day streak:', err);
+        res.status(500).json({ error: 'Failed to fetch day streak' });
+    }
+});
+
 // Route for index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

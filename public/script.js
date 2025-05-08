@@ -335,6 +335,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadTasksForDate(date);
                 updateStatsDisplay();
                 updateCompletionIcon(date); // Update the completion icon
+
+                // Fetch and update the day streak
+                await fetchAndDisplayDayStreak();
             } else {
                 console.error('Failed to update task completion');
             }
@@ -844,6 +847,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 initializeCalendar();
                 alert('Repetitive tasks added successfully!');
                 document.getElementById('addTaskForm').reset(); // Clear the form
+
+                // Fetch and update the day streak
+                await fetchAndDisplayDayStreak();
             } else {
                 console.error('Failed to add repetitive tasks');
             }
@@ -881,6 +887,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error deleting task:', error);
+        }
+    }
+
+    async function fetchAndDisplayDayStreak() {
+        try {
+            const response = await fetch('/api/streak');
+            if (response.ok) {
+                const data = await response.json();
+                const dayStreak = data.currentStreak;
+
+                // Update the day streak in the stats section
+                elements.dayStreak.textContent = dayStreak;
+            } else {
+                console.error('Failed to fetch day streak');
+            }
+        } catch (error) {
+            console.error('Error fetching day streak:', error);
         }
     }
 });
